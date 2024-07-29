@@ -26,9 +26,11 @@ app.use(express.json());
 // Setup the nodemailer transporter
 const transporter = nodemailer.createTransport({
   service: "gmail",
+  secure: true,
+  port: 465,
   auth: {
     user: "mstanvir55@gmail.com",
-    pass: "StrongPassword1829@",
+    pass: "",
   },
 });
 
@@ -58,10 +60,19 @@ app.post("/send-email", upload.single("attachment"), async (req, res) => {
       //   ]
     };
 
-    const info = await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(
+      mailOptions,
+      (error, emailResponse) => {
+        if (error) {
+          throw error;
+        }
+        console.log("success!");
+        response.end();
+      }
+    );
 
     // Delete the file after sending email
-    fs.unlinkSync(file.path);
+    //fs.unlinkSync(file.path);
 
     res.status(200).json({ message: "Emails sent successfully", info });
   } catch (error) {
